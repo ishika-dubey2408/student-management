@@ -42,5 +42,22 @@ pipeline {
                 '''
             }
         }
+        stage('Frontend Deploy') {
+    steps {
+        bat '''
+            for /f "tokens=5" %%a in ('netstat -ano ^| findstr :4000 ^| findstr LISTENING') do taskkill /PID %%a /F >nul 2>&1
+
+            timeout /t 2 /nobreak >nul
+
+            set JENKINS_NODE_COOKIE=dontKillMe
+
+            cd /d "%WORKSPACE%\\student-management-ui"
+
+            start "" /B node dist\\student-management-ui\\server\\server.mjs
+
+            exit /b 0
+        '''
+    }
+}
     }
 }
