@@ -25,16 +25,18 @@ pipeline {
             }
         }
 
-        stage('Deploy') {
-            steps {
-                bat '''
-                    for /f "tokens=5" %%a in ('netstat -ano ^| findstr :8080 ^| findstr LISTENING') do taskkill /PID %%a /F
+     stage('Deploy') {
+    steps {
+        bat '''
+            for /f "tokens=5" %%a in ('netstat -ano ^| findstr :8080 ^| findstr LISTENING') do taskkill /PID %%a /F >nul 2>&1
 
-                    set JENKINS_NODE_COOKIE=dontKillMe
+            set JENKINS_NODE_COOKIE=dontKillMe
 
-                    start "" /B "C:\\Program Files\\Eclipse Adoptium\\jdk-21.0.12.101-hotspot\\bin\\java.exe" -jar target\\student-management-0.0.1-SNAPSHOT.jar
-                '''
-            }
-        }
+            start "" /B "C:\\Program Files\\Eclipse Adoptium\\jdk-21.0.12.101-hotspot\\bin\\java.exe" -jar target\\student-management-0.0.1-SNAPSHOT.jar
+
+            exit /b 0
+        '''
+    }
+}
     }
 }
