@@ -8,6 +8,11 @@ pipeline {
                 bat 'mvn clean package -DskipTests'
             }
         }
+        stage('Backend Test') {
+    steps {
+        bat 'mvn test'
+    }
+}
 
         stage('Frontend Build') {
             steps {
