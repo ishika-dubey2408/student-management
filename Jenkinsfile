@@ -9,8 +9,6 @@ pipeline {
 
         stage('Git Clone') {
             steps {
-                deleteDir()
-
                 checkout([
                     $class: 'GitSCM',
                     branches: [[name: '*/main']],
