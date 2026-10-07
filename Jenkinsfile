@@ -6,10 +6,6 @@ pipeline {
         stage('Backend Build') {
             steps {
                 bat '''
-                    for /f "tokens=5" %%a in ('netstat -ano ^| findstr :8080 ^| findstr LISTENING') do taskkill /PID %%a /F >nul 2>&1
-
-                    timeout /t 2 /nobreak >nul
-
                     mvn clean package -DskipTests
                 '''
             }
@@ -31,17 +27,18 @@ pipeline {
             }
         }
 
-        stage('Docker Deploy') {
+        stage('Compose Down') {
             steps {
                 bat '''
-                    cd /d "%WORKSPACE%"
-
                     docker compose down
+                '''
+            }
+        }
 
-                    docker compose build
-
-                    docker compose up -d
-
+        stage('Compose Up') {
+            steps {
+                bat '''
+                    docker compose up -d --build
                     docker compose ps
                 '''
             }
