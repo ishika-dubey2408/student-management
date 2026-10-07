@@ -1,22 +1,30 @@
 pipeline {
     agent any
 
+    options {
+        skipDefaultCheckout(true)
+    }
+
     stages {
 
         stage('Git Clone') {
             steps {
-                bat '''
-                    if exist student-management-clone rmdir /s /q student-management-clone
+                deleteDir()
 
-                    git clone https://github.com/ishika-dubey2408/student-management.git student-management-clone
-                '''
+                checkout([
+                    $class: 'GitSCM',
+                    branches: [[name: '*/main']],
+                    userRemoteConfigs: [[
+                        url: 'https://github.com/ishika-dubey2408/student-management.git',
+                        credentialsId: 'github-credentials'
+                    ]]
+                ])
             }
         }
 
         stage('Backend Build') {
             steps {
                 bat '''
-                    cd student-management-clone
                     mvn clean package -DskipTests
                 '''
             }
@@ -25,7 +33,6 @@ pipeline {
         stage('Backend Test') {
             steps {
                 bat '''
-                    cd student-management-clone
                     mvn test
                 '''
             }
@@ -34,7 +41,7 @@ pipeline {
         stage('Frontend Build') {
             steps {
                 bat '''
-                    cd student-management-clone\\student-management-ui
+                    cd student-management-ui
                     call npm ci
                     call npm run build
                 '''
@@ -44,8 +51,7 @@ pipeline {
         stage('Compose Down') {
             steps {
                 bat '''
-                    cd student-management-clone
-                    docker compose down
+                    docker compose -p student-management down
                 '''
             }
         }
@@ -53,9 +59,8 @@ pipeline {
         stage('Compose Up') {
             steps {
                 bat '''
-                    cd student-management-clone
-                    docker compose up -d --build
-                    docker compose ps
+                    docker compose -p student-management up -d --build
+                    docker compose -p student-management ps
                 '''
             }
         }
