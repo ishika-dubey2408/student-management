@@ -31,33 +31,20 @@ pipeline {
             }
         }
 
-        stage('Deploy') {
+        stage('Docker Deploy') {
             steps {
                 bat '''
-                    set JENKINS_NODE_COOKIE=dontKillMe
+                    cd /d "%WORKSPACE%"
 
-                    start "" /B "C:\\Program Files\\Eclipse Adoptium\\jdk-21.0.12.101-hotspot\\bin\\java.exe" -jar target\\student-management-0.0.1-SNAPSHOT.jar
+                    docker compose down
 
-                    exit /b 0
+                    docker compose build
+
+                    docker compose up -d
+
+                    docker compose ps
                 '''
             }
         }
-        stage('Frontend Deploy') {
-    steps {
-        bat '''
-            for /f "tokens=5" %%a in ('netstat -ano ^| findstr :4000 ^| findstr LISTENING') do taskkill /PID %%a /F >nul 2>&1
-
-            timeout /t 2 /nobreak >nul
-
-            set JENKINS_NODE_COOKIE=dontKillMe
-
-            cd /d "%WORKSPACE%\\student-management-ui"
-
-            start "" /B node dist\\student-management-ui\\server\\server.mjs
-
-            exit /b 0
-        '''
-    }
-}
     }
 }
