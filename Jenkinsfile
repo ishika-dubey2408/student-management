@@ -2,6 +2,7 @@ pipeline {
 
     agent {
         node {
+            label ''
             customWorkspace 'C:\\ProgramData\\Jenkins\\.jenkins\\workspace\\Student-Management-Clean'
         }
     }
